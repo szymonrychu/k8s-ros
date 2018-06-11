@@ -18,6 +18,36 @@ jobs:
             docker tag szymonrychu/k8s-ros-master:${CIRCLE_SHA1} szymonrychu/k8s-ros-master:latest
             docker push szymonrychu/k8s-ros-master:${CIRCLE_SHA1}
             docker push szymonrychu/k8s-ros-master:latest
+  test_on_k8s:
+    machine:
+      image: circleci/classic:edge
+    steps:
+      - run:
+          name: spin up kubernetes docker image
+          command: |
+            export K8S_VERSION=$(curl -sS https://storage.googleapis.com/kubernetes-release/release/latest.txt)
+            export ARCH=amd64
+            docker run -d \
+              --volume=/sys:/sys:rw \
+              --volume=/var/lib/docker/:/var/lib/docker:rw \
+              --volume=/var/run:/var/run:rw \
+              --net=host \
+              --pid=host \
+              --privileged \
+              gcr.io/google_containers/hyperkube-${ARCH}:${K8S_VERSION} \
+                /hyperkube kubelet \
+                --hostname-override=127.0.0.1 \
+                --api-servers=http://localhost:8080 \
+                --config=/etc/kubernetes/manifests \
+                --cluster-dns=10.0.0.10 \
+                --cluster-domain=cluster.local \
+                --allow-privileged --v=2
+            curl -sSL "https://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/linux/amd64/kubectl" > ./kubectl
+            chmod +x ./kubectl
+            ./kubectl config set-cluster test-doc --server=http://localhost:8080
+            ./kubectl config set-context test-doc --cluster=test-doc
+            ./kubectl config use-context test-doc
+            ./kubectl get nodes
 
 workflows:
   version: 2
@@ -28,3 +58,4 @@ workflows:
             branches:
               only:
                 - /^master*$/
+      - test_on_k8s
