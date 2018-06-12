@@ -44,7 +44,11 @@ jobs:
           name: do stuff with k8s
           command: |
             kubectl cluster-info
+            until docker images -q myimage:${CIRCLE_SHA1} 2> /dev/null; do sleep 1; done
+            sed -i "s/CIRCLE_SHA1/${CIRCLE_SHA1}/g" master_deployment.yaml
             kubectl apply -f master_deployment.yaml --namespace default
+            sleep 30
+            kubectl describe deployment rosmaster
 
 workflows:
   version: 2
