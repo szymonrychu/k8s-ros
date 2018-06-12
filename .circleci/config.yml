@@ -1,4 +1,5 @@
 jobs:
+
   build:
     machine:
       image: circleci/classic:edge
@@ -23,49 +24,10 @@ jobs:
       image: circleci/classic:edge
     steps:
       - run:
-          name: reinstall newest docker
-          command: |
-            sudo apt-get remove docker docker-engine docker.io
-            sudo apt-get update
-            sudo apt-get install \
-              linux-image-extra-$(uname -r) \
-              linux-image-extra-virtual \
-              apt-transport-https \
-              ca-certificates \
-              curl \
-              software-properties-common
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-            sudo add-apt-repository \
-              "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-              $(lsb_release -cs) \
-              stable"
-            sudo apt-get update
-            sudo apt-get install docker-ce
-      - run:
           name: spin up kubernetes docker image
           command: |
-            export K8S_VERSION=$(curl -sS https://storage.googleapis.com/kubernetes-release/release/latest.txt)
-            export ARCH=amd64
-            docker run -d \
-              --volume=/sys:/sys:rw \
-              --volume=/var/lib/docker/:/var/lib/docker:rw \
-              --volume=/var/run:/var/run:rw \
-              --net=host \
-              --pid=host \
-              --privileged \
-              gcr.io/google_containers/hyperkube-${ARCH}:${K8S_VERSION} \
-                /hyperkube kubelet \
-                --hostname-override=127.0.0.1 \
-                --api-servers=http://localhost:8080 \
-                --config=/etc/kubernetes/manifests \
-                --cluster-dns=10.0.0.10 \
-                --cluster-domain=cluster.local \
-                --allow-privileged --v=2
-            curl -sSL "https://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/linux/amd64/kubectl" > ./kubectl
-            chmod +x ./kubectl
-            ./kubectl config set-cluster test-doc --server=http://localhost:8080
-            ./kubectl config set-context test-doc --cluster=test-doc
-            ./kubectl config use-context test-doc
+            git clone git@github.com:sttts/kubernetes-dind-cluster.git dind
+            dind/dind-up-cluster.sh
             ./kubectl get nodes
 
 workflows:
