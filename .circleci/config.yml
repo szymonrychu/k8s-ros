@@ -1,5 +1,4 @@
 jobs:
-
   build:
     machine:
       image: circleci/classic:edge
@@ -23,6 +22,7 @@ jobs:
     machine:
       image: circleci/classic:edge
     steps:
+      - checkout
       - run:
           name: spin up kubernetes docker image
           command: |
@@ -33,25 +33,18 @@ jobs:
             chmod +x ./kubectl
             sudo mv kubectl /usr/local/bin/
 
-            export MINIKUBE_WANTUPDATENOTIFICATION=false
-            export MINIKUBE_WANTREPORTERRORPROMPT=false
-            export MINIKUBE_HOME=$HOME
-            export CHANGE_MINIKUBE_NONE_USER=true
-            mkdir -p $HOME/.kube
-            touch $HOME/.kube/config
-
-            export KUBECONFIG=$HOME/.kube/config
-            sudo -E minikube start --kubernetes-version v1.10.4 --vm-driver=none
-
-            # this for loop waits until kubectl can access the api server that Minikube has created
-            for i in {1..150}; do # timeout for 5 minutes
-               kubectl get pod &> /dev/null
-               if [ $? -ne 1 ]; then
-                  break
-              fi
-              sleep 2
-            done
+            git clone https://github.com/metral/nanokube
+            cd nanokube
+            sudo apt-get update > /dev/null 2>&1
+            sudo apt-get install linux-image-extra-$(uname -r) -y
+            sudo modprobe aufs
+            sudo su -c bash -c "PRIVATE_MASTER_IF=\"eth0\" ./nanokube.sh -t" &
+            until kubectl cluster-info | grep KubeDNS > /dev/null 2>&1 ; do sleep 1; done
+      - run:
+          name: do stuff with k8s
+          command: |
             kubectl cluster-info
+            kubectl apply -f master_deployment.yaml --namespace default
 
 workflows:
   version: 2
@@ -62,4 +55,8 @@ workflows:
             branches:
               only:
                 - /^master*$/
-      - test_on_k8s
+      - test_on_k8s:
+          filters:
+            branches:
+              only:
+                - /^master*$/
