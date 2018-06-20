@@ -1,5 +1,5 @@
 jobs:
-  build_master:
+  build_rosmaster:
     machine:
       image: circleci/classic:edge
     steps:
@@ -22,42 +22,38 @@ jobs:
     machine:
       image: circleci/classic:edge
     steps:
+      - checkout
       - run:
           name: spin up kubernetes docker image
           command: |
-            export K8S_VERSION=$(curl -sS https://storage.googleapis.com/kubernetes-release/release/latest.txt)
-            export ARCH=amd64
-            mkdir /etc/kubernetes/pods
-            sudo mount --make-shared /sys/
-            sudo mount --make-shared /var/run/
-            docker run -d --privileged --net=host --pid=host \
-              -v /:/rootfs:ro \
-              -v /sys:/sys:ro \
-              -v /var/run:/var/run \
-              -v /var/lib/kubelet:/var/lib/kubelet \
-              -v /etc/kubernetes:/etc/kubernetes \
-              gcr.io/google_containers/hyperkube-amd64:v1.3.0 /hyperkube kubelet \
-                --allow-privileged=true \
-                --enable-server=false \
-                --hostname-override=127.0.0.1 \
-                --config=/etc/kubernetes/pods \
-                --containerized \
-                --v=2 \
-                --healthz-port=0 \
-                --read-only-port=0 \
-                --cadvisor-port=0
+            curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.27.0/minikube-linux-amd64
+            chmod +x minikube
+            sudo mv minikube /usr/local/bin/
             curl -sSL "https://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/linux/amd64/kubectl" > ./kubectl
             chmod +x ./kubectl
-            ./kubectl config set-cluster test-doc --server=http://localhost:8080
-            ./kubectl config set-context test-doc --cluster=test-doc
-            ./kubectl config use-context test-doc
-            ./kubectl get nodes
+            sudo mv kubectl /usr/local/bin/
+
+            git clone https://github.com/metral/nanokube
+            cd nanokube
+            sudo apt-get update > /dev/null 2>&1
+            sudo apt-get install linux-image-extra-$(uname -r) -y
+            sudo modprobe aufs
+            sudo su -c bash -c "PRIVATE_MASTER_IF=\"eth0\" ./nanokube.sh -t" &
+            until kubectl cluster-info | grep KubeDNS > /dev/null 2>&1 ; do sleep 1; done
+      - run:
+          name: do stuff with k8s
+          command: |
+            kubectl cluster-info
+            sed -i "s/CIRCLE_SHA1/${CIRCLE_SHA1}/g" master_deployment.yaml
+            kubectl apply -f master_deployment.yaml --namespace default
+            sleep 30
+            kubectl describe deployment rosmaster
 
 workflows:
   version: 2
   build_and_push:
     jobs:
-      - build_master
+      - build_rosmaster
       - test_on_k8s:
           requires:
-            - build_master
+            - build_rosmaster

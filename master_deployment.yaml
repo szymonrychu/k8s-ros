@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: rosmaster
-        image: szymonrychu/k8s-ros-master:latest
+        image: szymonrychu/k8s-ros-master:CIRCLE_SHA1
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
