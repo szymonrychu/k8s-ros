@@ -1,5 +1,5 @@
 jobs:
-  build:
+  build_master:
     machine:
       image: circleci/classic:edge
     steps:
@@ -11,7 +11,7 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/k8s-ros-master:${CIRCLE_SHA1} .
+            docker build -t szymonrychu/k8s-ros-master:${CIRCLE_SHA1} -f Dockerfile_master .
       - run:
           name: Tag and push docker container
           command: |
@@ -27,21 +27,25 @@ jobs:
           command: |
             export K8S_VERSION=$(curl -sS https://storage.googleapis.com/kubernetes-release/release/latest.txt)
             export ARCH=amd64
-            docker run -d \
-              --volume=/sys:/sys:rw \
-              --volume=/var/lib/docker/:/var/lib/docker:rw \
-              --volume=/var/run:/var/run:rw \
-              --net=host \
-              --pid=host \
-              --privileged \
-              gcr.io/google_containers/hyperkube-${ARCH}:${K8S_VERSION} \
-                /hyperkube kubelet \
+            mkdir /etc/kubernetes/pods
+            sudo mount --make-shared /sys/
+            sudo mount --make-shared /var/run/
+            docker run -d --privileged --net=host --pid=host \
+              -v /:/rootfs:ro \
+              -v /sys:/sys:ro \
+              -v /var/run:/var/run \
+              -v /var/lib/kubelet:/var/lib/kubelet \
+              -v /etc/kubernetes:/etc/kubernetes \
+              gcr.io/google_containers/hyperkube-amd64:v1.3.0 /hyperkube kubelet \
+                --allow-privileged=true \
+                --enable-server=false \
                 --hostname-override=127.0.0.1 \
-                --api-servers=http://localhost:8080 \
-                --config=/etc/kubernetes/manifests \
-                --cluster-dns=10.0.0.10 \
-                --cluster-domain=cluster.local \
-                --allow-privileged --v=2
+                --config=/etc/kubernetes/pods \
+                --containerized \
+                --v=2 \
+                --healthz-port=0 \
+                --read-only-port=0 \
+                --cadvisor-port=0
             curl -sSL "https://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/linux/amd64/kubectl" > ./kubectl
             chmod +x ./kubectl
             ./kubectl config set-cluster test-doc --server=http://localhost:8080
@@ -53,9 +57,7 @@ workflows:
   version: 2
   build_and_push:
     jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - /^master*$/
-      - test_on_k8s
+      - build_master
+      - test_on_k8s:
+          requires:
+            - build_master
