@@ -1,5 +1,6 @@
+version: 2
 jobs:
-  build_rosmaster:
+  build_ros_base:
     machine:
       image: circleci/classic:edge
     steps:
@@ -11,49 +12,93 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/k8s-ros-master:${CIRCLE_SHA1} -f Dockerfile_master .
+            docker build -t szymonrychu/ros-melodic-base:${CIRCLE_SHA1} -f Dockerfile_base .
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/k8s-ros-master:${CIRCLE_SHA1} szymonrychu/k8s-ros-master:latest
-            docker push szymonrychu/k8s-ros-master:${CIRCLE_SHA1}
-            docker push szymonrychu/k8s-ros-master:latest
-  test_on_k8s:
+            docker tag szymonrychu/ros-melodic-base:${CIRCLE_SHA1} szymonrychu/ros-melodic-base:latest
+            docker push szymonrychu/ros-melodic-base:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-melodic-base:latest
+  build_ros_core:
     machine:
       image: circleci/classic:edge
     steps:
       - checkout
       - run:
-          name: spin up kubernetes docker image
+          name: Setup Environment
           command: |
-            curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.27.0/minikube-linux-amd64
-            chmod +x minikube
-            sudo mv minikube /usr/local/bin/
-            curl -sSL "https://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/linux/amd64/kubectl" > ./kubectl
-            chmod +x ./kubectl
-            sudo mv kubectl /usr/local/bin/
-
-            git clone https://github.com/metral/nanokube
-            cd nanokube
-            sudo apt-get update > /dev/null 2>&1
-            sudo apt-get install linux-image-extra-$(uname -r) -y
-            sudo modprobe aufs
-            sudo su -c bash -c "PRIVATE_MASTER_IF=\"eth0\" ./nanokube.sh -t" &
-            until kubectl cluster-info | grep KubeDNS > /dev/null 2>&1 ; do sleep 1; done
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
       - run:
-          name: do stuff with k8s
+          name: Build docker container
           command: |
-            kubectl cluster-info
-            sed -i "s/CIRCLE_SHA1/${CIRCLE_SHA1}/g" master_deployment.yaml
-            kubectl apply -f master_deployment.yaml --namespace default
-            sleep 30
-            kubectl describe deployment rosmaster
+            docker build -t szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} -f Dockerfile_roscore .
+      - run:
+          name: Tag and push docker container
+          command: |
+            docker tag szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} szymonrychu/ros-melodic-roscore:latest
+            docker push szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-melodic-roscore:latest
+  tagged_build:
+    machine: true
+    steps:
+      - run:
+          name: Add tag to existing container
+          command: |
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+            docker pull szymonrychu/ros-melodic-base:${CIRCLE_SHA1}
+            TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
+              docker tag szymonrychu/ros-melodic-base:${CIRCLE_SHA1} szymonrychu/ros-melodic-base:${TAG_NAME}
+              docker push szymonrychu/ros-melodic-base:${TAG_NAME}
+            )
+            docker pull szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1}
+            TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
+              docker tag szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} szymonrychu/ros-melodic-roscore:${TAG_NAME}
+              docker push szymonrychu/ros-melodic-roscore:${TAG_NAME}
+            )
+  # test_on_k8s:
+  #   machine:
+  #     image: circleci/classic:edge
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: spin up kubernetes docker image
+  #         command: |
+  #           curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.27.0/minikube-linux-amd64
+  #           chmod +x minikube
+  #           sudo mv minikube /usr/local/bin/
+  #           curl -sSL "https://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/linux/amd64/kubectl" > ./kubectl
+  #           chmod +x ./kubectl
+  #           sudo mv kubectl /usr/local/bin/
+
+  #           git clone https://github.com/metral/nanokube
+  #           cd nanokube
+  #           sudo apt-get update > /dev/null 2>&1
+  #           sudo apt-get install linux-image-extra-$(uname -r) -y
+  #           sudo modprobe aufs
+  #           sudo su -c bash -c "PRIVATE_MASTER_IF=\"eth0\" ./nanokube.sh -t" &
+  #           until kubectl cluster-info | grep KubeDNS > /dev/null 2>&1 ; do sleep 1; done
+  #     - run:
+  #         name: do stuff with k8s
+  #         command: |
+  #           kubectl cluster-info
+  #           sed -i "s/CIRCLE_SHA1/${CIRCLE_SHA1}/g" master_deployment.yaml
+  #           kubectl apply -f master_deployment.yaml --namespace default
+  #           sleep 30
+  #           kubectl describe deployment rosmaster
 
 workflows:
   version: 2
+  tagged_build:
+    jobs:
+      - tagged_build:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
   build_and_push:
     jobs:
-      - build_rosmaster
-      - test_on_k8s:
+      - build_ros_base
+      - build_ros_core:
           requires:
-            - build_rosmaster
+            - build_ros_base

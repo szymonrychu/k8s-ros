@@ -1,7 +1,4 @@
-FROM ros:kinetic-ros-core-xenial
-
-RUN apt-get update && apt-get install -y -q sudo \
-  wget
+FROM szymonrychu/ros-melodic-base:latest
 
 ADD cmd.sh /
 RUN chmod +x /cmd.sh
