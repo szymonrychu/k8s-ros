@@ -1,0 +1,30 @@
+FROM szymonrychu/ros-melodic-base:latest AS base
+
+USER root
+
+RUN apt-get update && \
+    apt-get install -y \
+        git \
+        ros-melodic-rgbd-launch \
+        freenect
+
+FROM base AS compilation
+
+ENV FREENECT_STACK_URL https://github.com/szymonrychu/freenect_stack
+ENV FREENECT_STACK_COMMIT melodic-0.0.1
+
+RUN mkdir -p /build/catkin_ws/src && \
+    cd /build/catkin_ws/src && \
+    git clone ${FREENECT_STACK_URL} . && \
+    git checkout ${FREENECT_STACK_COMMIT} && \
+    rm -Rf .git && \
+    cd /build/catkin_ws && \
+    bash -c "source /opt/ros/melodic/setup.bash; catkin_make -DCMAKE_INSTALL_PREFIX=/opt/ros/melodic install"
+
+FROM base AS release
+
+COPY --from=compilation /opt/ros/melodic /opt/ros/melodic
+
+USER ros 
+
+ENTRYPOINT ["bash"]
