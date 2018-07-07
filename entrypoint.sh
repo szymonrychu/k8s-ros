@@ -1,3 +1,3 @@
 #!/bin/bash
-source /opt/ros/kinetic/setup.bash
-/opt/ros/kinetic/bin/roscore -p ${ROSCORE_PORT}
+source /opt/ros/${ROS_DISTRO}/setup.bash
+/opt/ros/${ROS_DISTRO}/bin/roscore -p ${ROSCORE_PORT}

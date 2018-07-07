@@ -1,11 +1,12 @@
-FROM szymonrychu/ros-melodic-base:latest AS base
+FROM szymonrychu/ros-lunar-base:latest AS base
 
 USER root
 
 RUN apt-get update && \
     apt-get install -y \
         git \
-        ros-melodic-rgbd-launch \
+        ros-${ROS_DISTRO}-desktop-full \
+        ros-${ROS_DISTRO}-rgbd-launch \
         freenect
 
 FROM base AS compilation
@@ -19,11 +20,11 @@ RUN mkdir -p /build/catkin_ws/src && \
     git checkout ${FREENECT_STACK_COMMIT} && \
     rm -Rf .git && \
     cd /build/catkin_ws && \
-    bash -c "source /opt/ros/melodic/setup.bash; catkin_make -DCMAKE_INSTALL_PREFIX=/opt/ros/melodic install"
+    bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash; catkin_make -DCMAKE_INSTALL_PREFIX=/opt/ros/melodic install"
 
 FROM base AS release
 
-COPY --from=compilation /opt/ros/melodic /opt/ros/melodic
+COPY --from=compilation /opt/ros/${ROS_DISTRO} /opt/ros/${ROS_DISTRO}
 
 USER ros 
 

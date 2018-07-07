@@ -1,4 +1,4 @@
-FROM szymonrychu/ros-melodic-base:latest
+FROM szymonrychu/ros-lunar-base:latest
 
 USER root
 
