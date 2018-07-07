@@ -12,13 +12,13 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/ros-melodic-base:${CIRCLE_SHA1} -f Dockerfile_base .
+            docker build -t szymonrychu/ros-lunar-base:${CIRCLE_SHA1} -f Dockerfile_base .
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/ros-melodic-base:${CIRCLE_SHA1} szymonrychu/ros-melodic-base:latest
-            docker push szymonrychu/ros-melodic-base:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-melodic-base:latest
+            docker tag szymonrychu/ros-lunar-base:${CIRCLE_SHA1} szymonrychu/ros-lunar-base:latest
+            docker push szymonrychu/ros-lunar-base:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-lunar-base:latest
   build_ros_core:
     machine:
       image: circleci/classic:edge
@@ -31,13 +31,13 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} -f Dockerfile_roscore .
+            docker build -t szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1} -f Dockerfile_roscore .
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} szymonrychu/ros-melodic-roscore:latest
-            docker push szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-melodic-roscore:latest
+            docker tag szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1} szymonrychu/ros-lunar-roscore:latest
+            docker push szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-lunar-roscore:latest
   tagged_build:
     machine: true
     steps:
@@ -45,15 +45,15 @@ jobs:
           name: Add tag to existing container
           command: |
             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-            docker pull szymonrychu/ros-melodic-base:${CIRCLE_SHA1}
+            docker pull szymonrychu/ros-lunar-base:${CIRCLE_SHA1}
             TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
-              docker tag szymonrychu/ros-melodic-base:${CIRCLE_SHA1} szymonrychu/ros-melodic-base:${TAG_NAME}
-              docker push szymonrychu/ros-melodic-base:${TAG_NAME}
+              docker tag szymonrychu/ros-lunar-base:${CIRCLE_SHA1} szymonrychu/ros-lunar-base:${TAG_NAME}
+              docker push szymonrychu/ros-lunar-base:${TAG_NAME}
             )
-            docker pull szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1}
+            docker pull szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1}
             TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
-              docker tag szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} szymonrychu/ros-melodic-roscore:${TAG_NAME}
-              docker push szymonrychu/ros-melodic-roscore:${TAG_NAME}
+              docker tag szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1} szymonrychu/ros-lunar-roscore:${TAG_NAME}
+              docker push szymonrychu/ros-lunar-roscore:${TAG_NAME}
             )
   # test_on_k8s:
   #   machine:
