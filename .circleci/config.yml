@@ -12,11 +12,15 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/ros-lunar-base:${CIRCLE_SHA1} -f Dockerfile_base .
+            if [ git diff --name-status HEAD~1 | grep "Dockerfile_base" ]; then
+              docker build -t szymonrychu/ros-lunar-base:latest -f Dockerfile_base .
+            else
+              docker pull szymonrychu/ros-lunar-base:latest
+            fi
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/ros-lunar-base:${CIRCLE_SHA1} szymonrychu/ros-lunar-base:latest
+            docker tag szymonrychu/ros-lunar-base:latest szymonrychu/ros-lunar-base:${CIRCLE_SHA1}
             docker push szymonrychu/ros-lunar-base:${CIRCLE_SHA1}
             docker push szymonrychu/ros-lunar-base:latest
   build_ros_core:
@@ -31,11 +35,15 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1} -f Dockerfile_roscore .
+            if [ git diff --name-status HEAD~1 | grep "Dockerfile_roscore" ]; then
+              docker build -t szymonrychu/ros-lunar-roscore:latest -f Dockerfile_roscore .
+            else
+              docker pull szymonrychu/ros-lunar-roscore:latest
+            fi
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1} szymonrychu/ros-lunar-roscore:latest
+            docker tag szymonrychu/ros-lunar-roscore:latest szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1}
             docker push szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1}
             docker push szymonrychu/ros-lunar-roscore:latest
   build_ros_freenect:
@@ -50,11 +58,15 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1} -f Dockerfile_freenect .
+            if [ git diff --name-status HEAD~1 | grep "Dockerfile_freenect" ]; then
+              docker build -t szymonrychu/ros-lunar-freenect:latest -f Dockerfile_freenect .
+            else
+              docker pull szymonrychu/ros-lunar-freenect:latest
+            fi
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1} szymonrychu/ros-lunar-freenect:latest
+            docker tag szymonrychu/ros-lunar-freenect:latest szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1}
             docker push szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1}
             docker push szymonrychu/ros-lunar-freenect:latest
   tagged_build:
