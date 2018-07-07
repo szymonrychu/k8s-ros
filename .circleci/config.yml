@@ -12,11 +12,7 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            if [ git diff --name-status HEAD~1 | grep "Dockerfile_base" ]; then
-              docker build -t szymonrychu/ros-lunar-base:latest -f Dockerfile_base .
-            else
-              docker pull szymonrychu/ros-lunar-base:latest
-            fi
+            docker build -t szymonrychu/ros-lunar-base:latest -f Dockerfile_base .
       - run:
           name: Tag and push docker container
           command: |
@@ -35,17 +31,32 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            if [ git diff --name-status HEAD~1 | grep "Dockerfile_roscore" ]; then
-              docker build -t szymonrychu/ros-lunar-roscore:latest -f Dockerfile_roscore .
-            else
-              docker pull szymonrychu/ros-lunar-roscore:latest
-            fi
+            docker build -t szymonrychu/ros-lunar-roscore:latest -f Dockerfile_roscore .
       - run:
           name: Tag and push docker container
           command: |
             docker tag szymonrychu/ros-lunar-roscore:latest szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1}
             docker push szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1}
             docker push szymonrychu/ros-lunar-roscore:latest
+  build_ros_gui:
+    machine:
+      image: circleci/classic:edge
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment
+          command: |
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+      - run:
+          name: Build docker container
+          command: |
+            docker build -t szymonrychu/ros-lunar-gui:latest -f Dockerfile_gui .
+      - run:
+          name: Tag and push docker container
+          command: |
+            docker tag szymonrychu/ros-lunar-gui:latest szymonrychu/ros-lunar-gui:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-lunar-gui:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-lunar-gui:latest
   build_ros_freenect:
     machine:
       image: circleci/classic:edge
@@ -58,11 +69,7 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            if [ git diff --name-status HEAD~1 | grep "Dockerfile_freenect" ]; then
-              docker build -t szymonrychu/ros-lunar-freenect:latest -f Dockerfile_freenect .
-            else
-              docker pull szymonrychu/ros-lunar-freenect:latest
-            fi
+            docker build -t szymonrychu/ros-lunar-freenect:latest -f Dockerfile_freenect .
       - run:
           name: Tag and push docker container
           command: |
@@ -85,6 +92,11 @@ jobs:
             TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
               docker tag szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1} szymonrychu/ros-lunar-roscore:${TAG_NAME}
               docker push szymonrychu/ros-lunar-roscore:${TAG_NAME}
+            )
+            docker pull szymonrychu/ros-lunar-gui:${CIRCLE_SHA1}
+            TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
+              docker tag szymonrychu/ros-lunar-gui:${CIRCLE_SHA1} szymonrychu/ros-lunar-gui:${TAG_NAME}
+              docker push szymonrychu/ros-lunar-gui:${TAG_NAME}
             )
             docker pull szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1}
             TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
@@ -138,6 +150,9 @@ workflows:
       - build_ros_core:
           requires:
             - build_ros_base
-      - build_ros_freenect:
+      - build_ros_gui:
           requires:
             - build_ros_base
+      - build_ros_freenect:
+          requires:
+            - build_ros_gui

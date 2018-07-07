@@ -2,15 +2,13 @@ FROM szymonrychu/ros-lunar-base:latest
 
 USER root
 
-ADD cmd.sh /
-RUN chmod +x /cmd.sh
+COPY roscore/entrypoint.sh /
 
-ADD entrypoint.sh /
-RUN chmod +x /entrypoint.sh
+RUN set -xe; \
+    chmod +x /entrypoint.sh
 
 ENV ROSCORE_PORT 5000
 
 USER ros 
 
-CMD ["/cmd.sh"]
 ENTRYPOINT ["/entrypoint.sh"]
