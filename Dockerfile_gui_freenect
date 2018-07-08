@@ -1,4 +1,4 @@
-FROM szymonrychu/ros-lunar-base:latest AS base
+FROM szymonrychu/ros-lunar-gui:latest AS base
 
 USER root
 
@@ -6,8 +6,6 @@ RUN set -xe; \
     apt-get update; \
     apt-get install -y \
         git \
-        ros-${ROS_DISTRO}-camera-info-manager \
-        ros-${ROS_DISTRO}-diagnostic-updater \
         ros-${ROS_DISTRO}-rgbd-launch \
         freenect
 
@@ -30,8 +28,8 @@ FROM base AS release
 COPY freenect/fakenect/ /
 
 RUN set -xe; \
-    chmod +x /fakenect.sh    
+    chmod +x /fakenect.sh
 
 COPY --from=compilation /opt/ros/${ROS_DISTRO} /opt/ros/${ROS_DISTRO}
 
-USER ros
+USER ros 

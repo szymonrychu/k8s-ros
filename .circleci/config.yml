@@ -76,6 +76,25 @@ jobs:
             docker tag szymonrychu/ros-lunar-freenect:latest szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1}
             docker push szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1}
             docker push szymonrychu/ros-lunar-freenect:latest
+  build_ros_gui_freenect:
+    machine:
+      image: circleci/classic:edge
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment
+          command: |
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+      - run:
+          name: Build docker container
+          command: |
+            docker build -t szymonrychu/ros-lunar-gui-freenect:latest -f Dockerfile_gui_freenect .
+      - run:
+          name: Tag and push docker container
+          command: |
+            docker tag szymonrychu/ros-lunar-gui-freenect:latest szymonrychu/ros-lunar-gui-freenect:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-lunar-gui-freenect:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-lunar-gui-freenect:latest
   tagged_build:
     machine: true
     steps:
@@ -102,6 +121,11 @@ jobs:
             TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
               docker tag szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1} szymonrychu/ros-lunar-freenect:${TAG_NAME}
               docker push szymonrychu/ros-lunar-freenect:${TAG_NAME}
+            )
+            docker pull szymonrychu/ros-lunar-gui-freenect:${CIRCLE_SHA1}
+            TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
+              docker tag szymonrychu/ros-lunar-gui-freenect:${CIRCLE_SHA1} szymonrychu/ros-lunar-gui-freenect:${TAG_NAME}
+              docker push szymonrychu/ros-lunar-gui-freenect:${TAG_NAME}
             )
   # test_on_k8s:
   #   machine:
@@ -154,5 +178,8 @@ workflows:
           requires:
             - build_ros_base
       - build_ros_freenect:
+          requires:
+            - build_ros_base
+      - build_ros_gui_freenect:
           requires:
             - build_ros_gui
