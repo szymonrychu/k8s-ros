@@ -4,7 +4,7 @@ USER root
 
 COPY roscore/entrypoint.sh /
 
-RUN set -xe; \
+RUN set -xe;\
     chmod +x /entrypoint.sh
 
 ENV ROSCORE_PORT 5000

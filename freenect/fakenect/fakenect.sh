@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ -z "$FAKENECT_PATH" ]; then
-    echo "Provide FAKENECT_PATH pointing to session recording"
-    exit 1
+    echo "Using default fakenect path /session"
+    export FAKENECT_PATH="/session"
 fi
-LD_PRELOAD="/usr/lib/x86_64-linux-gnu/fakenect/libfreenect.so" $@
+export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/fakenect/libfreenect.so"
