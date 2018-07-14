@@ -1,0 +1,15 @@
+[Unit]
+Description=ROS Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker pull szymonrychu/ros-lunar-gui-freenect
+ExecStart=/usr/bin/docker run --rm --name %n -p 6080:6080 -v /dev/bus/usb:/dev/bus/usb --privileged szymonrychu/ros-lunar-gui-freenect
+
+[Install]
+WantedBy=multi-user.target

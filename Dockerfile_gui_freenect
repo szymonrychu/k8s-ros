@@ -1,4 +1,4 @@
-FROM szymonrychu/ros-lunar-gui:latest AS base
+FROM szymonrychu/ros-gui:latest AS base
 
 USER root
 

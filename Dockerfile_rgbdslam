@@ -1,11 +1,11 @@
-FROM szymonrychu/ros-lunar-gui-freenect:latest AS base
+FROM szymonrychu/ros-gui-freenect:latest AS base
 
 USER ros
 
 from base as g2ofork_compilation
 
 RUN set -xe;\
-    sudo apt-get purge -y ros-lunar-libg2o libqglviewer-dev;\
+    sudo apt-get purge -y ros-${ROS_DISTRO}-libg2o libqglviewer-dev;\
     sudo apt-get install -y \
         libsuitesparse-dev \
         libeigen3-dev;\
@@ -30,8 +30,9 @@ RUN bash -ec "\
             libdevil1c2 \
             liblcms2-dev \
             libsdl1.2debian \
+            libdevil-dev \
             libslang2;\
-        source /opt/ros/lunar/setup.bash;\
+        source /opt/ros/${ROS_DISTRO}/setup.bash;\
         export G2O_DIR=/home/ros/g2ofork/install;\
         mkdir -p /home/ros/rgbdslam_catkin_ws/src;\
         cd /home/ros/rgbdslam_catkin_ws/src;\
@@ -39,7 +40,7 @@ RUN bash -ec "\
         cd /home/ros/rgbdslam_catkin_ws;\
         catkin_make;\
         source /home/ros/rgbdslam_catkin_ws/devel/setup.bash;\
-        git clone -b lunar https://github.com/szymonrychu/rgbdslam_v2.git /home/ros/rgbdslam_catkin_ws/src/rgbdslam;\
+        git clone -b ${ROS_DISTRO} https://github.com/szymonrychu/rgbdslam_v2.git /home/ros/rgbdslam_catkin_ws/src/rgbdslam;\
         rosdep install rgbdslam;\
         catkin_make -j2;\
     "

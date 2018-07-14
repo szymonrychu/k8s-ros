@@ -1,9 +1,9 @@
-FROM szymonrychu/ros-lunar-base:latest
+FROM szymonrychu/ros-base:latest
 
 USER root
 RUN set -xe;\
     apt-get update;\
-    apt-get install -y ros-lunar-desktop-full
+    apt-get install -y ros-${ROS_DISTRO}-desktop-full
 
 RUN set -xe;\
     apt-get update;\

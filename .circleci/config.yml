@@ -12,13 +12,13 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/ros-lunar-base:latest -f Dockerfile_base .
+            docker build -t szymonrychu/ros-base:latest -f Dockerfile_base .
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/ros-lunar-base:latest szymonrychu/ros-lunar-base:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-lunar-base:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-lunar-base:latest
+            docker tag szymonrychu/ros-base:latest szymonrychu/ros-base:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-base:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-base:latest
   build_ros_core:
     machine:
       image: circleci/classic:edge
@@ -31,13 +31,13 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/ros-lunar-roscore:latest -f Dockerfile_roscore .
+            docker build -t szymonrychu/ros-roscore:latest -f Dockerfile_roscore .
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/ros-lunar-roscore:latest szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-lunar-roscore:latest
+            docker tag szymonrychu/ros-roscore:latest szymonrychu/ros-roscore:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-roscore:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-roscore:latest
   build_ros_gui:
     machine:
       image: circleci/classic:edge
@@ -50,13 +50,13 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/ros-lunar-gui:latest -f Dockerfile_gui .
+            docker build -t szymonrychu/ros-gui:latest -f Dockerfile_gui .
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/ros-lunar-gui:latest szymonrychu/ros-lunar-gui:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-lunar-gui:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-lunar-gui:latest
+            docker tag szymonrychu/ros-gui:latest szymonrychu/ros-gui:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-gui:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-gui:latest
   build_ros_freenect:
     machine:
       image: circleci/classic:edge
@@ -69,13 +69,13 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/ros-lunar-freenect:latest -f Dockerfile_freenect .
+            docker build -t szymonrychu/ros-freenect:latest -f Dockerfile_freenect .
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/ros-lunar-freenect:latest szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-lunar-freenect:latest
+            docker tag szymonrychu/ros-freenect:latest szymonrychu/ros-freenect:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-freenect:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-freenect:latest
   build_ros_gui_freenect:
     machine:
       image: circleci/classic:edge
@@ -88,13 +88,32 @@ jobs:
       - run:
           name: Build docker container
           command: |
-            docker build -t szymonrychu/ros-lunar-gui-freenect:latest -f Dockerfile_gui_freenect .
+            docker build -t szymonrychu/ros-gui-freenect:latest -f Dockerfile_gui_freenect .
       - run:
           name: Tag and push docker container
           command: |
-            docker tag szymonrychu/ros-lunar-gui-freenect:latest szymonrychu/ros-lunar-gui-freenect:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-lunar-gui-freenect:${CIRCLE_SHA1}
-            docker push szymonrychu/ros-lunar-gui-freenect:latest
+            docker tag szymonrychu/ros-gui-freenect:latest szymonrychu/ros-gui-freenect:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-gui-freenect:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-gui-freenect:latest
+  build_ros_rgbdslam:
+    machine:
+      image: circleci/classic:edge
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment
+          command: |
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+      - run:
+          name: Build docker container
+          command: |
+            docker build -t szymonrychu/ros-rgbdslam:latest -f Dockerfile_rgbdslam .
+      - run:
+          name: Tag and push docker container
+          command: |
+            docker tag szymonrychu/ros-rgbdslam:latest szymonrychu/ros-rgbdslam:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-rgbdslam:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-rgbdslam:latest
   tagged_build:
     machine: true
     steps:
@@ -102,62 +121,36 @@ jobs:
           name: Add tag to existing container
           command: |
             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-            docker pull szymonrychu/ros-lunar-base:${CIRCLE_SHA1}
+            docker pull szymonrychu/ros-base:${CIRCLE_SHA1}
             TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
-              docker tag szymonrychu/ros-lunar-base:${CIRCLE_SHA1} szymonrychu/ros-lunar-base:${TAG_NAME}
-              docker push szymonrychu/ros-lunar-base:${TAG_NAME}
+              docker tag szymonrychu/ros-base:${CIRCLE_SHA1} szymonrychu/ros-base:${TAG_NAME}
+              docker push szymonrychu/ros-base:${TAG_NAME}
             )
-            docker pull szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1}
+            docker pull szymonrychu/ros-roscore:${CIRCLE_SHA1}
             TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
-              docker tag szymonrychu/ros-lunar-roscore:${CIRCLE_SHA1} szymonrychu/ros-lunar-roscore:${TAG_NAME}
-              docker push szymonrychu/ros-lunar-roscore:${TAG_NAME}
+              docker tag szymonrychu/ros-roscore:${CIRCLE_SHA1} szymonrychu/ros-roscore:${TAG_NAME}
+              docker push szymonrychu/ros-roscore:${TAG_NAME}
             )
-            docker pull szymonrychu/ros-lunar-gui:${CIRCLE_SHA1}
+            docker pull szymonrychu/ros-gui:${CIRCLE_SHA1}
             TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
-              docker tag szymonrychu/ros-lunar-gui:${CIRCLE_SHA1} szymonrychu/ros-lunar-gui:${TAG_NAME}
-              docker push szymonrychu/ros-lunar-gui:${TAG_NAME}
+              docker tag szymonrychu/ros-gui:${CIRCLE_SHA1} szymonrychu/ros-gui:${TAG_NAME}
+              docker push szymonrychu/ros-gui:${TAG_NAME}
             )
-            docker pull szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1}
+            docker pull szymonrychu/ros-freenect:${CIRCLE_SHA1}
             TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
-              docker tag szymonrychu/ros-lunar-freenect:${CIRCLE_SHA1} szymonrychu/ros-lunar-freenect:${TAG_NAME}
-              docker push szymonrychu/ros-lunar-freenect:${TAG_NAME}
+              docker tag szymonrychu/ros-freenect:${CIRCLE_SHA1} szymonrychu/ros-freenect:${TAG_NAME}
+              docker push szymonrychu/ros-freenect:${TAG_NAME}
             )
-            docker pull szymonrychu/ros-lunar-gui-freenect:${CIRCLE_SHA1}
+            docker pull szymonrychu/ros-gui-freenect:${CIRCLE_SHA1}
             TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
-              docker tag szymonrychu/ros-lunar-gui-freenect:${CIRCLE_SHA1} szymonrychu/ros-lunar-gui-freenect:${TAG_NAME}
-              docker push szymonrychu/ros-lunar-gui-freenect:${TAG_NAME}
+              docker tag szymonrychu/ros-gui-freenect:${CIRCLE_SHA1} szymonrychu/ros-gui-freenect:${TAG_NAME}
+              docker push szymonrychu/ros-gui-freenect:${TAG_NAME}
             )
-  # test_on_k8s:
-  #   machine:
-  #     image: circleci/classic:edge
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: spin up kubernetes docker image
-  #         command: |
-  #           curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.27.0/minikube-linux-amd64
-  #           chmod +x minikube
-  #           sudo mv minikube /usr/local/bin/
-  #           curl -sSL "https://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/linux/amd64/kubectl" > ./kubectl
-  #           chmod +x ./kubectl
-  #           sudo mv kubectl /usr/local/bin/
-
-  #           git clone https://github.com/metral/nanokube
-  #           cd nanokube
-  #           sudo apt-get update > /dev/null 2>&1
-  #           sudo apt-get install linux-image-extra-$(uname -r) -y
-  #           sudo modprobe aufs
-  #           sudo su -c bash -c "PRIVATE_MASTER_IF=\"eth0\" ./nanokube.sh -t" &
-  #           until kubectl cluster-info | grep KubeDNS > /dev/null 2>&1 ; do sleep 1; done
-  #     - run:
-  #         name: do stuff with k8s
-  #         command: |
-  #           kubectl cluster-info
-  #           sed -i "s/CIRCLE_SHA1/${CIRCLE_SHA1}/g" master_deployment.yaml
-  #           kubectl apply -f master_deployment.yaml --namespace default
-  #           sleep 30
-  #           kubectl describe deployment rosmaster
-
+            docker pull szymonrychu/ros-rgbdslam:${CIRCLE_SHA1}
+            TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
+              docker tag szymonrychu/ros-rgbdslam:${CIRCLE_SHA1} szymonrychu/ros-rgbdslam:${TAG_NAME}
+              docker push szymonrychu/ros-rgbdslam:${TAG_NAME}
+            )
 workflows:
   version: 2
   tagged_build:
@@ -183,3 +176,6 @@ workflows:
       - build_ros_gui_freenect:
           requires:
             - build_ros_gui
+      - build_ros_rgbdslam:
+          requires:
+            - build_ros_gui_freenect
