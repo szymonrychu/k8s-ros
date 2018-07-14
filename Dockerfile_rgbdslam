@@ -43,8 +43,11 @@ RUN bash -ec "\
         source /home/ros/rgbdslam_catkin_ws/devel/setup.bash;\
         git clone -b ${ROS_DISTRO} https://github.com/szymonrychu/rgbdslam_v2.git /home/ros/rgbdslam_catkin_ws/src/rgbdslam;\
         rosdep install rgbdslam;\
-        catkin_make -j2;\
+        catkin_make -DCMAKE_INSTALL_PREFIX=/opt/ros/${ROS_DISTRO} install;\
     "
 
+FROM base AS result
+
+COPY --from=rgbdslam_v2_compilation /opt/ros/${ROS_DISTRO} /opt/ros/${ROS_DISTRO}
 
 USER ros
