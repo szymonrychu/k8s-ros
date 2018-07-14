@@ -31,6 +31,7 @@ RUN bash -ec "\
             liblcms2-dev \
             libsdl1.2debian \
             libdevil-dev \
+            libsuitesparse-dev \
             libslang2;\
         source /opt/ros/${ROS_DISTRO}/setup.bash;\
         export G2O_DIR=/home/ros/g2ofork/install;\
