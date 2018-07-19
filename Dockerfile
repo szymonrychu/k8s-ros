@@ -25,19 +25,22 @@ RUN set -xe;\
         ros-${ROS_DISTRO}-rgbd-launch \
         ros-${ROS_DISTRO}-rtabmap-ros \
         freenect \
+        udev \
         python-rosinstall \
         python-rosinstall-generator \
         python-wstool \
         build-essential;\
     rosdep init;\
-    cd /home/ros
+    udevadm control --reload-rules;\
+    udevadm trigger
 # update rosdep as ros user
 USER ros
 
 RUN set -xe;\
     rosdep update;\
     echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc;\
-    echo "export DISPLAY=:1" >> ~/.bashrc;
+    echo "export DISPLAY=:1" >> ~/.bashrc;\
+    echo "export ROS_DISTRO=${ROS_DISTRO}" >> ~/.bashrc;
     
 FROM base AS ros_freenect_compilation
 
@@ -76,7 +79,17 @@ RUN set -xe;\
     rm -Rf websockify/.git;\
     echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /etc/default/supervisor
 
+COPY visual_odometry.launch /opt/ros/${ROS_DISTRO}/share/rtabmap_ros/
+
 COPY supervisord.conf /etc/supervisor/
+
+COPY start_pcl2depth.sh /
+COPY start_rtabmap.sh /
+COPY start_freenect.sh /
+RUN set -xe;\
+    sudo chmod +x /start_pcl2depth.sh;\
+    sudo chmod +x /start_rtabmap.sh;\
+    sudo chmod +x /start_freenect.sh
 
 EXPOSE 6080
  
