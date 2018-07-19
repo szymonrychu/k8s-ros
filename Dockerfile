@@ -30,9 +30,7 @@ RUN set -xe;\
         python-rosinstall-generator \
         python-wstool \
         build-essential;\
-    rosdep init;\
-    udevadm control --reload-rules;\
-    udevadm trigger
+    rosdep init
 # update rosdep as ros user
 USER ros
 
@@ -83,13 +81,13 @@ COPY visual_odometry.launch /opt/ros/${ROS_DISTRO}/share/rtabmap_ros/
 
 COPY supervisord.conf /etc/supervisor/
 
-COPY start_pcl2depth.sh /
-COPY start_rtabmap.sh /
-COPY start_freenect.sh /
+COPY start_rtabmap.sh /usr/bin/start_rtabmap
+COPY start_rviz.sh /usr/bin/start_rviz
+COPY start_freenect.sh /usr/bin/start_freenect
 RUN set -xe;\
-    sudo chmod +x /start_pcl2depth.sh;\
-    sudo chmod +x /start_rtabmap.sh;\
-    sudo chmod +x /start_freenect.sh
+    sudo chmod +x /usr/bin/start_rtabmap;\
+    sudo chmod +x /usr/bin/start_rviz;\
+    sudo chmod +x /usr/bin/start_freenect
 
 EXPOSE 6080
  
