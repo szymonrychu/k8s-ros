@@ -1,48 +1,91 @@
 version: 2
 jobs:
-  build:
+  build_kinect:
     machine:
-      image: circleci/classic:edge
-    steps:
-      - checkout
-      - run:
-          name: Setup Environment
-          command: |
-            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-      - run:
-          name: Build and push containers
-          command: |
-            docker build -t szymonrychu/ros:latest .
-            docker tag szymonrychu/ros:latest:latest szymonrychu/ros:latest:${CIRCLE_SHA1}
-            docker push szymonrychu/ros:latest:${CIRCLE_SHA1} 
-            docker push szymonrychu/ros:latest:latest
-  tagged_build:
-    machine: true
-    steps:
-      - checkout
-      - run:
-          name: Setup Environment
-          command: |
-            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-      - run:
-          name: Tag all containers
-          command: |
-            docker pull szymonrychu/ros:${CIRCLE_SHA1}
-            TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
-                docker tag szymonrychu/ros:${CIRCLE_SHA1} szymonrychu/ros:${TAG_NAME}
-                docker push szymonrychu/ros:${TAG_NAME}
-            )
+      image: ubuntu-1604:201903-01
+      steps:
+        - checkout
+        - run:
+            name: Setup Environment
+            command: |
+              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+        - run:
+            name: Build and push containers
+            command: |
+              docker build -t szymonrychu/ros-melodic-kinect:latest .
+              docker tag szymonrychu/ros-melodic-kinect:latest:latest szymonrychu/ros-melodic-kinect:latest:${CIRCLE_SHA1}
+              docker push szymonrychu/ros-melodic-kinect:${CIRCLE_SHA1} 
+              docker push szymonrychu/ros-melodic-kinect:latest
+
+  build_roscore:
+    machine:
+      image: ubuntu-1604:201903-01
+      steps:
+        - checkout
+        - run:
+            name: Setup Environment
+            command: |
+              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+        - run:
+            name: Build and push containers
+            command: |
+              docker build -t szymonrychu/ros-melodic-roscore:latest .
+              docker tag szymonrychu/ros-melodic-roscore:latest:latest szymonrychu/ros-melodic-roscore:latest:${CIRCLE_SHA1}
+              docker push szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} 
+              docker push szymonrychu/ros-melodic-roscore:latest
+  
+  build_rtabmap:
+    machine:
+      image: ubuntu-1604:201903-01
+      steps:
+        - checkout
+        - run:
+            name: Setup Environment
+            command: |
+              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+        - run:
+            name: Build and push containers
+            command: |
+              docker build -t szymonrychu/ros-melodic-rtabmap:latest .
+              docker tag szymonrychu/ros-melodic-rtabmap:latest:latest szymonrychu/ros-melodic-rtabmap:latest:${CIRCLE_SHA1}
+              docker push szymonrychu/ros-melodic-rtabmap:${CIRCLE_SHA1} 
+              docker push szymonrychu/ros-melodic-rtabmap:latest
+
+
+
+  # tagged_build:
+  #   machine: true
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Setup Environment
+  #         command: |
+  #           docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+  #     - run:
+  #         name: Tag all containers
+  #         command: |
+  #           docker pull szymonrychu/ros:${CIRCLE_SHA1}
+  #           TAG_NAME=$(git describe --exact-match --tags ${CIRCLE_SHA1}) && (
+  #               docker tag szymonrychu/ros:${CIRCLE_SHA1} szymonrychu/ros:${TAG_NAME}
+  #               docker push szymonrychu/ros:${TAG_NAME}
+  #           )
             
 workflows:
   version: 2
-  tagged_build:
+  # tagged_build:
+  #   jobs:
+  #     - tagged_build:
+  #         filters:
+  #           branches:
+  #             ignore: /.*/
+  #           tags:
+  #             only: /.*/
+  build_kinect:
     jobs:
-      - tagged_build:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-  build:
+      - build_kinect
+  build_roscore:
     jobs:
-      - build
+      - build_roscore
+  build_rtabmap:
+    jobs:
+      - build_rtabmap
