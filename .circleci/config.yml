@@ -3,56 +3,56 @@ jobs:
   build_kinect:
     machine:
       image: ubuntu-1604:201903-01
-      steps:
-        - checkout
-        - run:
-            name: Setup Environment
-            command: |
-              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-        - run:
-            name: Build and push containers
-            command: |
-              cd kinect
-              docker build -t szymonrychu/ros-melodic-kinect:latest .
-              docker tag szymonrychu/ros-melodic-kinect:latest:latest szymonrychu/ros-melodic-kinect:latest:${CIRCLE_SHA1}
-              docker push szymonrychu/ros-melodic-kinect:${CIRCLE_SHA1} 
-              docker push szymonrychu/ros-melodic-kinect:latest
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment
+          command: |
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+      - run:
+          name: Build and push containers
+          command: |
+            cd kinect
+            docker build -t szymonrychu/ros-melodic-kinect:latest .
+            docker tag szymonrychu/ros-melodic-kinect:latest:latest szymonrychu/ros-melodic-kinect:latest:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-melodic-kinect:${CIRCLE_SHA1} 
+            docker push szymonrychu/ros-melodic-kinect:latest
 
   build_roscore:
     machine:
       image: ubuntu-1604:201903-01
-      steps:[![CircleCI](https://circleci.com/gh/szymonrychu/k8s-ros-master/tree/master.svg?style=svg)](https://circleci.com/gh/szymonrychu/k8s-ros-master/tree/master)
-        - checkout
-        - run:
-            name: Setup Environment
-            command: |
-              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-        - run:
-            name: Build and push containers
-            command: |
-              cd roscore
-              docker build -t szymonrychu/ros-melodic-roscore:latest .
-              docker tag szymonrychu/ros-melodic-roscore:latest:latest szymonrychu/ros-melodic-roscore:latest:${CIRCLE_SHA1}
-              docker push szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} 
-              docker push szymonrychu/ros-melodic-roscore:latest
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment
+          command: |
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+      - run:
+          name: Build and push containers
+          command: |
+            cd roscore
+            docker build -t szymonrychu/ros-melodic-roscore:latest .
+            docker tag szymonrychu/ros-melodic-roscore:latest:latest szymonrychu/ros-melodic-roscore:latest:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} 
+            docker push szymonrychu/ros-melodic-roscore:latest
   
   build_rtabmap:
     machine:
       image: ubuntu-1604:201903-01
-      steps:
-        - checkout
-        - run:
-            name: Setup Environment
-            command: |
-              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-        - run:
-            name: Build and push containers
-            command: |
-              cd rtabmap
-              docker build -t szymonrychu/ros-melodic-rtabmap:latest .
-              docker tag szymonrychu/ros-melodic-rtabmap:latest:latest szymonrychu/ros-melodic-rtabmap:latest:${CIRCLE_SHA1}
-              docker push szymonrychu/ros-melodic-rtabmap:${CIRCLE_SHA1} 
-              docker push szymonrychu/ros-melodic-rtabmap:latest
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment
+          command: |
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+      - run:
+          name: Build and push containers
+          command: |
+            cd rtabmap
+            docker build -t szymonrychu/ros-melodic-rtabmap:latest .
+            docker tag szymonrychu/ros-melodic-rtabmap:latest:latest szymonrychu/ros-melodic-rtabmap:latest:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-melodic-rtabmap:${CIRCLE_SHA1} 
+            docker push szymonrychu/ros-melodic-rtabmap:latest
 
 
 
