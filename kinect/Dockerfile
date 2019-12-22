@@ -10,7 +10,8 @@ RUN set -xe;\
         git \
         lsb-release \
         ros-${ROS_DISTRO}-rgbd-launch \
-        ros-${ROS_DISTRO}-rtabmap-ros \
+        ros-${ROS_DISTRO}-camera-info-manager \
+        ros-${ROS_DISTRO}-diagnostic-updater \
         freenect \
         udev;\
     useradd -m -s /bin/bash -G sudo,dialout ros;\
