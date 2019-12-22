@@ -14,7 +14,7 @@ jobs:
           command: |
             cd kinect
             docker build -t szymonrychu/ros-melodic-kinect:latest .
-            docker tag szymonrychu/ros-melodic-kinect:latest:latest szymonrychu/ros-melodic-kinect:latest:${CIRCLE_SHA1}
+            docker tag szymonrychu/ros-melodic-kinect:latest szymonrychu/ros-melodic-kinect:latest:${CIRCLE_SHA1}
             docker push szymonrychu/ros-melodic-kinect:${CIRCLE_SHA1} 
             docker push szymonrychu/ros-melodic-kinect:latest
 
@@ -53,8 +53,43 @@ jobs:
             docker tag szymonrychu/ros-melodic-rtabmap:latest:latest szymonrychu/ros-melodic-rtabmap:latest:${CIRCLE_SHA1}
             docker push szymonrychu/ros-melodic-rtabmap:${CIRCLE_SHA1} 
             docker push szymonrychu/ros-melodic-rtabmap:latest
+  
+  build_platform:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment
+          command: |
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+      - run:
+          name: Build and push containers
+          command: |
+            cd platform
+            docker build -t szymonrychu/ros-melodic-platform:latest .
+            docker tag szymonrychu/ros-melodic-platform:latest:latest szymonrychu/ros-melodic-platform:latest:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-melodic-platform:${CIRCLE_SHA1} 
+            docker push szymonrychu/ros-melodic-platform:latest
 
-
+              
+  build_path_planner:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment
+          command: |
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+      - run:
+          name: Build and push containers
+          command: |
+            cd path_planner
+            docker build -t szymonrychu/ros-melodic-path-planner:latest .
+            docker tag szymonrychu/ros-melodic-path-planner:latest:latest szymonrychu/ros-melodic-path-planner:latest:${CIRCLE_SHA1}
+            docker push szymonrychu/ros-melodic-path-planner:${CIRCLE_SHA1} 
+            docker push szymonrychu/ros-melodic-path-planner:latest
 
   # tagged_build:
   #   machine: true
@@ -92,3 +127,9 @@ workflows:
   build_rtabmap:
     jobs:
       - build_rtabmap
+  build_platform:
+    jobs:
+      - build_platform
+  build_path_planner:
+    jobs:
+      - build_path_planner
