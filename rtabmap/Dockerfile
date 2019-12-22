@@ -15,9 +15,9 @@ RUN set -xe;\
         xvfb \
         terminator \
         gtk2-engines-murrine \
-        ttf-ubuntu-font-family;\
+        ttf-ubuntu-font-family \
         ros-${ROS_DISTRO}-desktop-full \
-        ros-${ROS_DISTRO}-rviz \
+        ros-${ROS_DISTRO}-rviz;\
     mkdir -p /etc/supervisor/conf.d;\
     rm /etc/supervisor/supervisord.conf;\
     cd /root;\
