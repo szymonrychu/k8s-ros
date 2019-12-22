@@ -14,7 +14,7 @@ jobs:
           command: |
             cd kinect
             docker build -t szymonrychu/ros-melodic-kinect:latest .
-            docker tag szymonrychu/ros-melodic-kinect:latest szymonrychu/ros-melodic-kinect:latest:${CIRCLE_SHA1}
+            docker tag szymonrychu/ros-melodic-kinect:latest szymonrychu/ros-melodic-kinect:${CIRCLE_SHA1}
             docker push szymonrychu/ros-melodic-kinect:${CIRCLE_SHA1} 
             docker push szymonrychu/ros-melodic-kinect:latest
 
@@ -32,7 +32,7 @@ jobs:
           command: |
             cd roscore
             docker build -t szymonrychu/ros-melodic-roscore:latest .
-            docker tag szymonrychu/ros-melodic-roscore:latest:latest szymonrychu/ros-melodic-roscore:latest:${CIRCLE_SHA1}
+            docker tag szymonrychu/ros-melodic-roscore:latest szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1}
             docker push szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} 
             docker push szymonrychu/ros-melodic-roscore:latest
   
@@ -50,7 +50,7 @@ jobs:
           command: |
             cd rtabmap
             docker build -t szymonrychu/ros-melodic-rtabmap:latest .
-            docker tag szymonrychu/ros-melodic-rtabmap:latest:latest szymonrychu/ros-melodic-rtabmap:latest:${CIRCLE_SHA1}
+            docker tag szymonrychu/ros-melodic-rtabmap:latest szymonrychu/ros-melodic-rtabmap:${CIRCLE_SHA1}
             docker push szymonrychu/ros-melodic-rtabmap:${CIRCLE_SHA1} 
             docker push szymonrychu/ros-melodic-rtabmap:latest
   
@@ -68,7 +68,7 @@ jobs:
           command: |
             cd platform
             docker build -t szymonrychu/ros-melodic-platform:latest .
-            docker tag szymonrychu/ros-melodic-platform:latest:latest szymonrychu/ros-melodic-platform:latest:${CIRCLE_SHA1}
+            docker tag szymonrychu/ros-melodic-platform:latest szymonrychu/ros-melodic-platform:${CIRCLE_SHA1}
             docker push szymonrychu/ros-melodic-platform:${CIRCLE_SHA1} 
             docker push szymonrychu/ros-melodic-platform:latest
 
@@ -87,7 +87,7 @@ jobs:
           command: |
             cd path_planner
             docker build -t szymonrychu/ros-melodic-path-planner:latest .
-            docker tag szymonrychu/ros-melodic-path-planner:latest:latest szymonrychu/ros-melodic-path-planner:latest:${CIRCLE_SHA1}
+            docker tag szymonrychu/ros-melodic-path-planner:latest szymonrychu/ros-melodic-path-planner:${CIRCLE_SHA1}
             docker push szymonrychu/ros-melodic-path-planner:${CIRCLE_SHA1} 
             docker push szymonrychu/ros-melodic-path-planner:latest
 
