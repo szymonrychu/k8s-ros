@@ -20,7 +20,7 @@ jobs:
   build_roscore:
     machine:
       image: ubuntu-1604:201903-01
-      steps:
+      steps:[![CircleCI](https://circleci.com/gh/szymonrychu/k8s-ros-master/tree/master.svg?style=svg)](https://circleci.com/gh/szymonrychu/k8s-ros-master/tree/master)
         - checkout
         - run:
             name: Setup Environment
