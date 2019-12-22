@@ -12,6 +12,7 @@ jobs:
         - run:
             name: Build and push containers
             command: |
+              cd kinect
               docker build -t szymonrychu/ros-melodic-kinect:latest .
               docker tag szymonrychu/ros-melodic-kinect:latest:latest szymonrychu/ros-melodic-kinect:latest:${CIRCLE_SHA1}
               docker push szymonrychu/ros-melodic-kinect:${CIRCLE_SHA1} 
@@ -29,6 +30,7 @@ jobs:
         - run:
             name: Build and push containers
             command: |
+              cd roscore
               docker build -t szymonrychu/ros-melodic-roscore:latest .
               docker tag szymonrychu/ros-melodic-roscore:latest:latest szymonrychu/ros-melodic-roscore:latest:${CIRCLE_SHA1}
               docker push szymonrychu/ros-melodic-roscore:${CIRCLE_SHA1} 
@@ -46,6 +48,7 @@ jobs:
         - run:
             name: Build and push containers
             command: |
+              cd rtabmap
               docker build -t szymonrychu/ros-melodic-rtabmap:latest .
               docker tag szymonrychu/ros-melodic-rtabmap:latest:latest szymonrychu/ros-melodic-rtabmap:latest:${CIRCLE_SHA1}
               docker push szymonrychu/ros-melodic-rtabmap:${CIRCLE_SHA1} 
