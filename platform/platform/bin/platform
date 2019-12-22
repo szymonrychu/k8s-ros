@@ -1,0 +1,7 @@
+#! /usr/bin/env python
+
+import platform.hello
+
+
+if __name__ == '__main__':
+    platform.hello.say('my friend!')
